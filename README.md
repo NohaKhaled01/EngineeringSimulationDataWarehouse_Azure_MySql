@@ -69,9 +69,9 @@ In addition, this will be explored more in the next project, using Azure SQL Ser
 
 I.  Denormalized marts:
 
-    - Marts were designed in a question-oriented method, instead of a dimension-fact method, as this was more suitable for the expected usage of the warehouse.
+- Marts were designed in a question-oriented method, instead of a dimension-fact method, as this was more suitable for the expected usage of the warehouse.
 
-    - Each mart has one explicit grain, specified in the mart description in the documentation.
+- Each mart has one explicit grain, specified in the mart description in the documentation.
 
 ## Database Usage
 

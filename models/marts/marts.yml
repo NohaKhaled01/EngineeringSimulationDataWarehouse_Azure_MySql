@@ -1,0 +1,392 @@
+version: 2
+
+models:
+    - name: aggmart_parts_in_projects
+      description: 'Number of parts in project - one row per project'
+      columns:
+        - name: project_id
+          description: 'Primary key - unique identifier for each project'
+          tests:
+            - unique
+            - not_null
+        - name: project_title
+          description: 'project title'
+          tests:
+            - not_null
+            - unique
+        - name: no_of_parts
+          description: 'Number of parts in db for each project'
+          tests:
+            - not_null
+            - dbt_utils.accepted_range:
+                min_value: 0
+        
+    - name: aggmart_requests_in_stage
+      description: 'Number of requests in each stage in projects - one row per stage'
+      columns:
+        - name: project_id
+          description: "Identifier for the row's project"
+          tests:
+            - not_null
+        - name: stage_id
+          description: "stage id inside which the number of requests is calculated"
+          tests:
+            - unique
+            - not_null
+        - name: stage_title
+          description: "stage title"
+          tests:
+            - unique
+            - not_null
+        - name: number_of_requests
+          description: "Number of requests in stage"
+          tests:
+            - not_null
+            - dbt_utils.accepted_range:
+                min_value: 1
+
+    - name: aggmart_stages_requests_in_project
+      description: 'Number of stages and requests in each project - one row per project'
+      columns:
+        - name: project_id
+          description: 'Unique identifier for each project and row'
+          tests:
+            - unique
+            - not_null
+        - name: project_title
+          description: 'project title'
+          tests:
+            - unique
+            - not_null
+        - name: number_of_stages
+          description: 'Number of stages in project'
+          tests:
+            - not_null
+            - dbt_utils.accepted_range:
+                min_value: 1
+        - name: number_of_requests
+          description: 'Number of requests in project'
+          tests:
+            - not_null
+            - dbt_utils.accepted_range:
+                min_value: 1
+        
+    - name: mart_parts_materials
+      description: 'Flatened table - parts + materials. One row per region'
+      columns:
+        - name: source_project_name
+          description: 'Source project name'
+          tests:
+            - not_null
+        - name: part_id
+          description: 'part ID'
+          tests:
+           - not_null
+        - name: part_name
+          description: 'part name'
+          tests:
+            - not_null
+        - name: solid_name
+          description: 'Solid/region name inside part'
+          tests:
+            - not_null
+        - name: solid_material
+          description: 'Material of solid - grain of mart'
+          tests:
+            - not_null
+        - name: material_id
+          description: 'Material ID for each solid material, unique, but not an identifier for the material itself, just the record'
+          tests:
+            - unique
+            - not_null
+    
+    - name: mart_parts_project
+      description: 'project table flattened into parts - one row per part'
+      columns:
+        - name: project_id
+          description: 'project ID - project identifiered, not unique'
+          tests:
+            - not_null
+        - name: project_title
+          description: 'project title'
+          tests:
+            - not_null
+        - name: project_abbreviation
+          description: 'First two letters in project full name - a quick general identifier, derived from project title'
+          tests:
+            - not_null
+        - name: engine_type
+          description: 'Engine name type for project - derived from project title'
+          tests:
+            - not_null
+        - name: engine_capacity
+          description: 'Engine capacity in L'
+        - name: model_year
+          description: 'project model year, derived from project title'
+        - name: part_id
+          description: 'part ID - grain of table, unique'
+          tests:
+            - unique
+            - not_null
+        - name: source_project_name
+          description: 'Source project name'
+          tests:
+            - not_null
+        - name: part_name
+          description: 'part name'
+          tests:
+            - not_null
+    
+    - name: mart_flowline_project_stages
+      description: 'flowlines in each project - one row per flowline, with stage data'
+      columns:
+        - name: project_id
+          description: 'project ID - not unique. project identifier'
+          tests:
+            - not_null
+        - name: project_title
+          description: 'project title'
+          tests:
+            - not_null
+        - name: project_abbreviation
+          description: 'First two letters in project full name - a quick general identifier, derived from project title'
+          tests:
+            - not_null
+        - name: engine_type
+          description: 'Engine name type for project - derived from project title'
+          tests:
+            - not_null
+        - name: engine_capacity
+          description: 'Engine capacity in L'
+        - name: model_year
+          description: 'project model year, derived from project title'
+        - name: stage_id
+          description: 'stage identifier, not necessarily unique'
+          tests:
+            - not_null
+        - name: stage_title
+          description: 'stage full name'
+          tests:
+            - not_null
+        - name: stage_name
+          description: 'stage number'
+          tests:
+            - not_null
+        - name: stage_additional_name
+          description: 'Additional identifiers for stage name/number'
+        - name: flowline_id
+          description: 'flowline ID - unique'
+          tests:
+            - unique
+            - not_null
+        - name: project_name
+          description: 'Project name'
+          tests:
+            - not_null
+        - name: specification_1
+          description: 'Boolean flag'
+          tests:
+            - not_null
+            - accepted_values:
+                values: [0, 1]
+        - name: specification_2
+          description: 'Boolean flag'
+          tests:
+            - not_null
+            - accepted_values:
+                values: [0, 1]
+        - name: specification_3
+          description: 'Boolean flag'
+          tests:
+            - not_null
+            - accepted_values:
+                values: [0, 1]
+        - name: specification_4
+          description: 'Boolean flag'
+          tests:
+            - not_null
+            - accepted_values:
+                values: [0, 1]
+        - name: specification_5
+          description: 'Boolean flag'
+          tests:
+            - not_null
+            - accepted_values:
+                values: [0, 1]
+        - name: specification_6
+          description: 'Boolean flag'
+          tests:
+            - not_null
+            - accepted_values:
+                values: [0, 1]
+        - name: specification_7
+          description: 'Boolean flag'
+          tests:
+            - not_null
+            - accepted_values:
+                values: [0, 1]
+        - name: specification_8
+          description: 'Boolean flag'
+          tests:
+            - not_null
+            - accepted_values:
+                values: [0, 1]
+        - name: specification_9
+          description: 'Boolean flag'
+          tests:
+            - not_null
+            - accepted_values:
+                values: [0, 1]
+        - name: specification_10
+          description: 'Boolean flag'
+          tests:
+            - not_null
+            - accepted_values:
+                values: [0, 1]
+    
+    - name: mart_flowlines_materials
+      description: 'Materials pushed into flowlines - one row per material'
+      columns:
+        - name: flowline_id
+          description: 'flowline identifier. Not unique'
+          tests:
+            - not_null
+        - name: stage_id
+          description: 'flowline stage identifier. Not unique'
+          tests:
+            - not_null
+        - name: project_name
+          description: 'Project name'
+          tests:
+            - not_null
+        - name: segment_name
+          description: 'Segment name'
+          tests:
+            - not_null
+        - name: segment_region_name
+          description: 'Region name inside segment'
+          tests:
+            - not_null
+        - name: segment_region_material
+          description: 'Region material'
+          tests:
+            - not_null
+        - name: material_id
+          description: 'Material ID - row identifier, not material identifier. Unique'
+          tests:
+            - unique
+            - not_null
+    
+    - name: mart_lastactive_projects
+      description: 'Last request date for project, with start date and stage title - one row per project. Mart derived from mart_project_stage_request'
+      columns:
+        - name: project_id
+          description: 'project identifier - unique'
+          tests:
+            - unique
+            - not_null
+        - name: project_title
+          description: 'project title'
+          tests:
+            - unique
+            - not_null
+        - name: stage_title
+          description: 'stage title for last active request'
+          tests:
+            - unique
+            - not_null
+        - name: request_start
+          description: 'Request start date'
+        - name: request_ending
+          description: 'Request ending date'
+    
+    - name: mart_project_stage_request
+      description: 'projects - stages - Requests -- flattened. One row per request'
+      columns:
+        - name: project_id
+          description: 'Identifier for each project. Not unique'
+          tests:
+            - not_null
+        - name: stage_id
+          description: 'Identifier for each stage. Not unique'
+          tests:
+            - not_null
+        - name: request_id
+          description: 'Identifier for each request - unique. One row per request'
+          tests:
+            - unique
+            - not_null
+        - name: project_title
+          description: 'project full name'
+          tests:
+            - not_null
+        - name: stage_title
+          description: 'stage full name'
+          tests:
+            - not_null
+        - name: request_name
+          description: 'Full request name [mainly from the board]'
+          tests:
+            - not_null
+        - name: state
+          description: 'Request state'
+          tests:
+            - not_null
+        - name: project_abbreviation
+          description: 'First two letters in project full name - a quick general identifier, derived from project title'
+          tests:
+            - not_null
+        - name: engine_type
+          description: 'Engine name type for project - derived from project title'
+          tests:
+            - not_null
+        - name: engine_capacity
+          description: 'Engine capacity in L'
+        - name: model_year
+          description: 'project model year, derived from project title'
+        - name: model_id_1
+          description: 'Additional project identifiers, derived from project title'
+        - name: model_id_2
+          description: 'Additional project identifiers, derived from project title'
+        - name: stage_name
+          description: 'stage name'
+          tests:
+            - not_null
+        - name: stage_additional_name
+          description: 'Additional stage identifiers'
+        - name: stage_description
+          description: 'stage description text [mainly from the board]'
+        - name: type_1_run
+          description: 'Boolean flag'
+          tests:
+            - not_null
+        - name: type_2_run
+          description: 'Boolean flag'
+          tests:
+            - not_null
+        - name: type_3_run
+          description: 'Boolean flag'
+          tests:
+            - not_null
+        - name: type_4_run
+          description: 'Boolean flag'
+          tests:
+            - not_null
+        - name: mixed_type_run
+          description: 'Boolean flag'
+          tests:
+            - not_null
+        - name: request_description
+          description: 'Request full description [mainly from the board]'
+        - name: project_start
+          description: 'Work start date for this project'
+        - name: project_ending
+          description: 'Work end date for this project'
+        - name: stage_start
+          description: 'stage starting date'
+        - name: stage_ending
+          description: 'stage ending date'
+        - name: request_start
+          description: 'Request starting date'
+        - name: request_ending
+          description: 'Request closing date'

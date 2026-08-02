@@ -1,0 +1,14 @@
+version: 2
+
+sources:
+    - name: sim_mysql
+      schema: sim_mysql
+      tables:
+        - name: projects
+        - name: stages
+        - name: requests
+        - name: parts
+        - name: parts_materials
+        - name: flowlines
+        - name: flowlines_materials
+        - name: flowlines_meshes

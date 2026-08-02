@@ -1,0 +1,372 @@
+version: 2
+
+models:
+    - name: stg_simmysql__projects
+      description: 'One row per project - big parent main table'
+      columns:
+        - name: project_id
+          description: 'Primary key - unique identifier for each project'
+          tests:
+            - unique
+            - not_null
+        - name: azure_epic_id
+          description: 'Secondary key - to enable connection between projects and stages'
+          tests:
+            - not_null
+            - unique
+        - name: project_title
+          description: 'project full name'
+          tests:
+            - not_null
+        - name: project_abbreviation
+          description: 'First two letters in project full name - a quick general identifier, derived from project title'
+          tests:
+            - not_null
+        - name: engine_type
+          description: 'Engine name type for project - derived from project title'
+          tests:
+            - not_null
+        - name: engine_capacity
+          description: 'Engine capacity in L'
+        - name: model_year
+          description: 'project model year, derived from project title'
+        - name: model_id_1
+          description: 'Additional project identifiers, derived from project title'
+        - name: model_id_2
+          description: 'Additional project identifiers, derived from project title'
+        - name: start_date
+          description: 'Work start date for this project'
+        - name: close_date
+          description: 'Work end date for this project'
+          tests:
+            - date_order:
+                earlier_column: start_date
+
+    - name: stg_simmysql__stages
+      description: 'One row per stage for each project. Connected to projects using project ID'
+      columns:
+        - name: stage_id
+          description: 'Primary key - unique identifier for each stage'
+          tests:
+            - unique
+            - not_null
+        - name: project_id
+          description: 'Foreign key to projects table'
+          tests:
+            - not_null
+            - relationships:
+                to: ref('stg_simmysql__projects')
+                field: project_id
+        - name: azure_stage_id
+          description: 'Reference key - to enable connection between stages and requests'
+          tests:
+            - not_null
+            - unique
+        - name: stage_title
+          description: 'stage full name'
+          tests:
+            - not_null
+        - name: azure_epic_id
+          description: 'Reference key - to enable joining and FK population between stages and projects'
+          tests:
+            - not_null
+            - relationships:
+                to: ref('stg_simmysql__projects')
+                field: azure_epic_id
+        - name: stage_name
+          description: 'stage name'
+          tests:
+            - not_null
+        - name: stage_additional_name
+          description: 'Additional stage identifiers'
+        - name: stage_description
+          description: 'stage description text [mainly from the board]'
+        - name: start_date
+          description: 'stage starting date'
+        - name: close_date
+          description: 'stage ending date'
+          tests:
+            - date_order:
+                earlier_column: start_date
+
+    - name: stg_simmysql__requests
+      description: 'One row per request. Connected to stages using stage ID'
+      columns:
+        - name: request_id
+          description: 'Primary key - unique identifier for each request'
+          tests:
+            - unique
+            - not_null
+        - name: stage_id
+          description: 'Foreign key to stages table'
+          tests:
+            - not_null
+            - relationships:
+                to: ref('stg_simmysql__stages')
+                field: stage_id
+        - name: azure_request_id
+          description: 'Reference key - to enable joining and FK population between requests and results later on'
+          tests:
+            - not_null
+            - unique
+        - name: azure_stage_id
+          description: 'Reference key - to enable joining and FK population between requests and stages'
+          tests:
+            - not_null
+            - relationships:
+                to: ref('stg_simmysql__stages')
+                field: azure_stage_id
+        - name: request_name
+          description: 'Full request name [mainly from the board]'
+          tests:
+            - not_null
+        - name: state
+          description: 'Request state'
+          tests:
+            - not_null
+            - accepted_values:
+                values: ['New', 'Active', 'Documented', 'On-Hold', 'Removed', 'Reviewing', 'Submitted']
+        - name: start_date
+          description: 'Request starting date'
+        - name: close_date
+          description: 'Request closing date'
+          tests:
+            - date_order:
+                earlier_column: start_date
+        - name: type_1_run
+          description: 'Boolean flag'
+          tests:
+            - not_null
+            - accepted_values:
+                values: [0, 1]
+        - name: type_2_run
+          description: 'Boolean flag'
+          tests:
+            - not_null
+            - accepted_values:
+                values: [0, 1]
+        - name: type_3_run
+          description: 'Boolean flag'
+          tests:
+            - not_null
+            - accepted_values:
+                values: [0, 1]
+        - name: type_4_run
+          description: 'Boolean flag'
+          tests:
+            - not_null
+            - accepted_values:
+                values: [0, 1]
+        - name: mixed_type_run
+          description: 'Boolean flag'
+          tests:
+            - not_null
+            - accepted_values:
+                values: [0, 1]
+        - name: request_description
+          description: 'Request full description [mainly from the board]'
+
+    - name: stg_simmysql__parts
+      description: 'A lookup table for parts across all models imported into the DB - identified with part ID, connected to project table using project id'
+      columns:
+        - name: part_id
+          description: 'Primary key - unique identifier for each part'
+          tests:
+            - unique
+            - not_null
+        - name: project_id
+          description: 'Foreign key to projects table'
+          tests:
+            - not_null
+            - relationships:
+                to: ref('stg_simmysql__projects')
+                field: project_id
+        - name: source_project_name
+          description: 'Reference key - to connect parts to parts materials'
+          tests:
+            - not_null
+        - name: part_name
+          description: 'part name, as in the model'
+          tests:
+            - not_null
+
+    - name: stg_simmysql__parts_materials
+      description: 'parts materials'
+      columns:
+        - name: material_id
+          description: 'Primary key - unique identifier for each material'
+          tests:
+            - unique
+            - not_null
+        - name: part_id
+          description: 'Foreign key to parts table'
+          tests:
+            - not_null
+            - relationships:
+                to: ref('stg_simmysql__parts')
+                field: part_id
+        - name: source_project_name
+          description: 'Reference key - to connect parts materials to parts'
+          tests:
+            - not_null
+            - relationships:
+                to: ref('stg_simmysql__parts')
+                field: source_project_name
+        - name: part_name
+          description: 'part name, as in the model'
+          tests:
+            - not_null
+        - name: solid_name
+          description: 'solid regions names in part'
+          tests:
+            - not_null
+        - name: solid_material
+          description: 'solid region material in part'
+          tests:
+            - not_null
+
+    - name: stg_simmysql__flowlines
+      description: 'A lookup table for all flowlines'
+      columns:
+        - name: flowline_id
+          description: 'Primary key - unique identifier for each flowline'
+          tests:
+            - unique
+            - not_null
+        - name: stage_id
+          description: 'Foreign key to stages table'
+          tests:
+            - not_null
+            - relationships:
+                to: ref('stg_simmysql__stages')
+                field: stage_id
+        - name: project_name
+          description: 'Reference key - to connect flowlines to flowlines materials and meshes'
+          tests:
+            - not_null
+        - name: specification_1
+          description: 'Boolean flag'
+          tests:
+            - not_null
+            - accepted_values:
+                values: [0, 1]
+        - name: specification_2
+          description: 'Boolean flag'
+          tests:
+            - not_null
+            - accepted_values:
+                values: [0, 1]
+        - name: specification_3
+          description: 'Boolean flag'
+          tests:
+            - not_null
+            - accepted_values:
+                values: [0, 1]
+        - name: specification_4
+          description: 'Boolean flag'
+          tests:
+            - not_null
+            - accepted_values:
+                values: [0, 1]
+        - name: specification_5
+          description: 'Boolean flag'
+          tests:
+            - not_null
+            - accepted_values:
+                values: [0, 1]
+        - name: specification_6
+          description: 'Boolean flag'
+          tests:
+            - not_null
+            - accepted_values:
+                values: [0, 1]
+        - name: specification_7
+          description: 'Boolean flag'
+          tests:
+            - not_null
+            - accepted_values:
+                values: [0, 1]
+        - name: specification_8
+          description: 'Boolean flag'
+          tests:
+            - not_null
+            - accepted_values:
+                values: [0, 1]
+        - name: specification_9
+          description: 'Boolean flag'
+          tests:
+            - not_null
+            - accepted_values:
+                values: [0, 1]
+        - name: specification_10
+          description: 'Boolean flag'
+          tests:
+            - not_null
+            - accepted_values:
+                values: [0, 1]
+    
+    - name: stg_simmysql__flowlines_materials
+      description: 'flowline Materials'
+      columns:
+        - name: material_id
+          description: 'Primary key - unique identifier for each material'
+          tests:
+            - unique
+            - not_null
+        - name: flowline_id
+          description: 'Foreign key to flowlines table'
+          tests:
+            - not_null
+            - relationships:
+                to: ref('stg_simmysql__flowlines')
+                field: flowline_id
+        - name: project_name
+          description: 'Reference key - to connect flowlines materials to flowlines'
+          tests:
+            - not_null
+            - relationships:
+                to: ref('stg_simmysql__flowlines')
+                field: project_name
+        - name: segment_name
+          description: 'Segment name, as in the model'
+          tests:
+            - not_null
+        - name: segment_region_name
+          description: 'Segment region names'
+          tests:
+            - not_null
+        - name: segment_region_material
+          description: 'Segment region materials'
+          tests:
+            - not_null
+       
+    - name: stg_simmysql__flowlines_meshes
+      description: 'flowline Segment Meshes'
+      columns:
+        - name: mesh_id
+          description: 'Primary key - unique identifier for each mesh file'
+          tests:
+            - unique
+            - not_null
+        - name: flowline_id
+          description: 'Foreign key to flowlines table'
+          tests:
+            - not_null
+            - relationships:
+                to: ref('stg_simmysql__flowlines')
+                field: flowline_id
+        - name: project_name
+          description: 'Reference key - to connect flowlines meshes to flowlines'
+          tests:
+            - not_null
+            - relationships:
+                to: ref('stg_simmysql__flowlines')
+                field: project_name
+        - name: segment_name
+          description: 'Segment name, as in the model'
+          tests:
+            - not_null
+        - name: mesh_file_name
+          description: 'Segment mesh file name'
+          tests:
+            - not_null

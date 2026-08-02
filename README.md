@@ -1,5 +1,5 @@
 # Engineering Simulation Data Warehouse - Phase 2 
-# DBT layer & hosting on Azure using MySQL Server
+## DBT layer & hosting on Azure using MySQL Server
 
 This is a continuation of the data warehouse project built in this repo: [[link](https://github.com/NohaKhaled01/EngineeringSimulationDataWarehouse)]. This project's goal is to build a dbt layer for the transformation of the data extracted, in addition to hosting the warehouse on Azure's Cloud services, using MySQL server.
 

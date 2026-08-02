@@ -21,7 +21,11 @@ This project's goal is to host the warehouse on Azure's Cloud service, using MyS
 
 The data warehouse was hosted on Azure using MySQL server. In addition to the MySQL server, a blob storage container was created, in a planned attempt to automate the data ingestion process when data lands in the blob storage.
 
-The automation was attempted using 'functions' inside Azure but was eventually blocked due to a compatibility gap between the hosting plan and the event routing system used in Azure. The event routing system, known as Azure Event Grid, is an event routing system that allows the building of event-driven processes. The Flex Consumption plan was the hosting plan used for this project. The compatibility gap occurred when the deployed function, which is a piece of code that should be carried out when an event is detected, was not recognized by the event grid, which caused the whole automation layer to fail.
+The automation layer was planned out as follows:
+```
+New file lands in Blob Storage  ──►  Azure Function (blob trigger)  ──►  loads raw tables  ──►  dbt build refreshes marts
+```
+It was attempted using 'functions' inside Azure but was eventually blocked due to a compatibility gap between the hosting plan and the event routing system used in Azure. The event routing system, known as Azure Event Grid, is an event routing system that allows the building of event-driven processes. The Flex Consumption plan was the hosting plan used for this project. The compatibility gap occurred when the deployed function, which is a piece of code that should be carried out when an event is detected, was not recognized by the event grid, which caused the whole automation layer to fail.
 
 The better option would've been to either use the premium plan, or to use Azure Data Factory instead of the functions feature, but this step would've prolonged this project more than necessary, and it is planned out for the next phase of this project either ways, which is hosting the ware house on a Azure SQL server instead of MySQL server.
 
@@ -65,9 +69,9 @@ In addition, this will be explored more in the next project, using Azure SQL Ser
 
 I.  Denormalized marts:
 
-    i.  Marts were designed in a question-oriented method, instead of a dimension-fact method, as this was more suitable for the expected usage of the warehouse.
+    - Marts were designed in a question-oriented method, instead of a dimension-fact method, as this was more suitable for the expected usage of the warehouse.
 
-    ii. Each mart has one explicit grain, specified in the mart description in the documentation.
+    - Each mart has one explicit grain, specified in the mart description in the documentation.
 
 ## Database Usage
 
